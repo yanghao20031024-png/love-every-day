@@ -1,0 +1,28 @@
+{
+  "couple": {
+    "person1": { "name": "他", "avatar": "" },
+    "person2": { "name": "她", "avatar": "" },
+    "startDate": "2024-01-01"
+  },
+  "timeline": [
+    {
+      "id": "1",
+      "date": "2024-01-01",
+      "title": "我们在一起啦 💕",
+      "description": "今天是我们正式在一起的日子，从此每一天都是情人节！",
+      "images": [],
+      "emoji": "💕"
+    }
+  ],
+  "photos": [],
+  "diary": [],
+  "countdowns": [
+    {
+      "id": "1",
+      "title": "一周年纪念日",
+      "date": "2025-01-01",
+      "emoji": "🎂"
+    }
+  ],
+  "letters": []
+}

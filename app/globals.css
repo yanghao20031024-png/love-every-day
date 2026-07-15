@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-pink-love: #FF6B95;
+  --color-purple-love: #C084FC;
+  --color-pink-light: #FFF0F5;
+  --color-purple-light: #FAF5FF;
+  --color-background: #FFF5F7;
+  --color-foreground: #4A3548;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* 全局渐变背景 */
+.gradient-bg {
+  background: linear-gradient(135deg, #FFF0F5 0%, #FAF5FF 50%, #FFF5F7 100%);
+}
+
+/* 爱心跳动动画 */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* 飘落爱心动画 */
+@keyframes float-up {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+}
+
+.animate-float {
+  animation: float-up 6s linear infinite;
+}
+
+/* 淡入动画 */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+/* 卡片样式 */
+.card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 107, 149, 0.2);
+  box-shadow: 0 4px 20px rgba(255, 107, 149, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 107, 149, 0.2);
+  border-color: rgba(255, 107, 149, 0.4);
+}
+
+/* 按钮样式 */
+.btn-primary {
+  background: linear-gradient(135deg, #FF6B95, #C084FC);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 149, 0.4);
+}
+
+/* 输入框样式 */
+.input-love {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 107, 149, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.input-love:focus {
+  outline: none;
+  border-color: #FF6B95;
+  box-shadow: 0 0 0 3px rgba(255, 107, 149, 0.2);
+}
+
+/* 文本域样式 */
+.textarea-love {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 107, 149, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.textarea-love:focus {
+  outline: none;
+  border-color: #FF6B95;
+  box-shadow: 0 0 0 3px rgba(255, 107, 149, 0.2);
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 240, 245, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FF6B95, #C084FC);
+  border-radius: 4px;
+}
+
+/* 时间轴线条 */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #FF6B95, #C084FC);
+  transform: translateX(-50%);
+}
+
+/* 照片网格 */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}

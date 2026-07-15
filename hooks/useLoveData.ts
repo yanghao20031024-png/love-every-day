@@ -1,0 +1,131 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+
+export interface Couple {
+  person1: { name: string; avatar: string };
+  person2: { name: string; avatar: string };
+  startDate: string;
+}
+
+export interface TimelineEvent {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  images: string[];
+  emoji: string;
+}
+
+export interface Photo {
+  id: string;
+  url: string;
+  description: string;
+  date: string;
+  category: string;
+}
+
+export interface DiaryEntry {
+  id: string;
+  date: string;
+  title: string;
+  content: string;
+  mood: string;
+  images: string[];
+}
+
+export interface Countdown {
+  id: string;
+  title: string;
+  date: string;
+  emoji: string;
+}
+
+export interface Letter {
+  id: string;
+  from: "person1" | "person2";
+  to: "person1" | "person2";
+  title: string;
+  content: string;
+  date: string;
+  isRead: boolean;
+}
+
+export interface LoveData {
+  couple: Couple;
+  timeline: TimelineEvent[];
+  photos: Photo[];
+  diary: DiaryEntry[];
+  countdowns: Countdown[];
+  letters: Letter[];
+}
+
+const defaultData: LoveData = {
+  couple: {
+    person1: { name: "他", avatar: "" },
+    person2: { name: "她", avatar: "" },
+    startDate: "2024-01-01",
+  },
+  timeline: [],
+  photos: [],
+  diary: [],
+  countdowns: [],
+  letters: [],
+};
+
+export function useLoveData() {
+  const [data, setData] = useState<LoveData>(defaultData);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch("/api/data");
+      if (res.ok) {
+        const json = await res.json();
+        setData(json);
+      }
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const saveData = async (newData: LoveData) => {
+    try {
+      const res = await fetch("/api/data", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newData),
+      });
+      if (res.ok) {
+        setData(newData);
+        return true;
+      }
+    } catch (error) {
+      console.error("Failed to save data:", error);
+    }
+    return false;
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (res.ok) {
+        const { url } = await res.json();
+        return url;
+      }
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+    }
+    return null;
+  };
+
+  return { data, loading, saveData, uploadImage, refresh: fetchData };
+}
