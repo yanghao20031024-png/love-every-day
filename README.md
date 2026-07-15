@@ -5,6 +5,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8)
+![Supabase](https://img.shields.io/badge/Supabase-Cloud-3FCF8E)
 
 ## ✨ 功能特色
 
@@ -25,39 +26,60 @@
 - 🪟 玻璃态卡片效果
 - 📱 响应式设计，支持手机和电脑
 
-## 🚀 快速开始
+## 🚀 部署到 Vercel
 
-### 本地运行
+### 一键部署
 
-```bash
-# 克隆项目
-git clone https://github.com/yanghao20031024-png/love-every-day.git
-cd love-every-day
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yanghao20031024-png/love-every-day)
 
-# 安装依赖
-npm install
+### 手动部署
 
-# 启动开发服务器
-npm run dev
+1. Fork 本仓库到你的 GitHub
+2. 访问 [Vercel](https://vercel.com) 并用 GitHub 登录
+3. 点击 **"New Project"** → 选择 `love-every-day` 仓库
+4. 在 **Environment Variables** 中添加：
+   - `NEXT_PUBLIC_SUPABASE_URL` = 你的 Supabase Project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = 你的 Supabase anon public key
+5. 点击 **"Deploy"**
+
+## 🗄️ Supabase 配置
+
+### 1. 创建 Supabase 项目
+1. 访问 [Supabase](https://supabase.com) 并注册
+2. 创建新项目，记住数据库密码
+
+### 2. 创建数据表
+在 Supabase SQL Editor 中执行：
+
+```sql
+CREATE TABLE love_data (
+  id TEXT PRIMARY KEY DEFAULT 'main',
+  data JSONB NOT NULL DEFAULT '{}',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE love_data ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all access" ON love_data
+  FOR ALL
+  USING (true)
+  WITH CHECK (true);
 ```
 
-打开 http://localhost:3000 开始使用
-
-### 部署到 Vercel
-
-1. 访问 [Vercel](https://vercel.com)
-2. 用 GitHub 账号登录
-3. 点击 "New Project"
-4. 选择 `love-every-day` 仓库
-5. 点击 "Deploy"
+### 3. 创建存储桶
+1. 进入 **Storage** 页面
+2. 点击 **"Create a new bucket"**
+3. 名称输入 `uploads`
+4. 勾选 **Public bucket**
+5. 点击 **"Create bucket"**
 
 ## 📦 技术栈
 
 - **框架**: Next.js 16 (App Router)
 - **语言**: TypeScript
 - **样式**: Tailwind CSS
-- **数据存储**: 本地 JSON 文件
-- **图片存储**: 本地 uploads 目录
+- **数据库**: Supabase (PostgreSQL)
+- **文件存储**: Supabase Storage
 
 ## 📝 使用说明
 
