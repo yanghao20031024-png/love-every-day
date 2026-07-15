@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,18 +13,30 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const ext = path.extname(file.name);
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    const ext = file.name.split('.').pop();
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    // 上传到 Supabase Storage
+    const { error } = await supabase.storage
+      .from('uploads')
+      .upload(filename, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('Upload error:', error);
+      return NextResponse.json({ error: '上传失败' }, { status: 500 });
     }
 
-    fs.writeFileSync(path.join(uploadDir, filename), buffer);
+    // 获取公开 URL
+    const { data: urlData } = supabase.storage
+      .from('uploads')
+      .getPublicUrl(filename);
 
-    return NextResponse.json({ url: `/uploads/${filename}` });
-  } catch {
+    return NextResponse.json({ url: urlData.publicUrl });
+  } catch (error) {
+    console.error('Upload error:', error);
     return NextResponse.json({ error: '上传失败' }, { status: 500 });
   }
 }
