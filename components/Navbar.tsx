@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { href: "/", label: "首页", emoji: "🏠" },
@@ -17,6 +18,12 @@ const navItems = [
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+
+  // 在登录/注册/绑定页不显示导航栏
+  if (pathname.startsWith("/auth/")) {
+    return null;
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-pink-love/20 shadow-sm">
@@ -44,6 +51,19 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
+            {user && (
+              <div className="flex items-center gap-2 ml-2 pl-2 border-l border-gray-200">
+                <span className="text-sm text-gray-500 max-w-[100px] truncate">
+                  {user.email?.split("@")[0]}
+                </span>
+                <button
+                  onClick={signOut}
+                  className="text-sm text-gray-400 hover:text-pink-love transition-colors px-2 py-1 rounded-lg hover:bg-pink-love/5"
+                >
+                  退出
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -79,6 +99,20 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
+            {user && (
+              <div className="border-t border-gray-100 mt-2 pt-2 px-4">
+                <div className="text-sm text-gray-500 mb-2">{user.email}</div>
+                <button
+                  onClick={() => {
+                    signOut();
+                    setIsOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-red-400 hover:bg-red-50 transition-colors"
+                >
+                  🚪 退出登录
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

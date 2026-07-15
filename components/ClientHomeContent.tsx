@@ -4,9 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { LoveData } from "@/hooks/useLoveData";
 
-export default function ClientHomeContent({ initialData }: { initialData: LoveData }) {
+const defaultData: LoveData = {
+  couple: { person1: { name: "他", avatar: "" }, person2: { name: "她", avatar: "" }, startDate: "2024-01-01" },
+  timeline: [], photos: [], diary: [], countdowns: [], letters: [],
+};
+
+export default function ClientHomeContent({ initialData }: { initialData: LoveData | null }) {
   // 使用服务端传来的初始数据，但允许客户端刷新
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState(initialData || defaultData);
   const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   // 初始化计时器

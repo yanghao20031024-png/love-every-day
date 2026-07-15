@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "恋爱每一天 💕",
@@ -15,11 +16,13 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="gradient-bg min-h-screen">
-        <Navbar />
-        <main className="pt-20 pb-8 px-4 max-w-6xl mx-auto">
-          {children}
-        </main>
-        <FloatingHearts />
+        <AuthProvider>
+          <Navbar />
+          <main className="pt-20 pb-8 px-4 max-w-6xl mx-auto">
+            {children}
+          </main>
+          <FloatingHearts />
+        </AuthProvider>
       </body>
     </html>
   );

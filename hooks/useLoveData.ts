@@ -80,6 +80,10 @@ export function useLoveData() {
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch("/api/data");
+      if (res.status === 401) {
+        window.location.href = "/auth/login";
+        return;
+      }
       if (res.ok) {
         const json = await res.json();
         setData(json);
@@ -102,6 +106,10 @@ export function useLoveData() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newData),
       });
+      if (res.status === 401) {
+        window.location.href = "/auth/login";
+        return false;
+      }
       if (res.ok) {
         setData(newData);
         return true;
@@ -117,6 +125,10 @@ export function useLoveData() {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (res.status === 401) {
+        window.location.href = "/auth/login";
+        return null;
+      }
       if (res.ok) {
         const { url } = await res.json();
         return url;
