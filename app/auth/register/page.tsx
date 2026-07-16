@@ -11,7 +11,6 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -32,41 +31,32 @@ export default function RegisterPage() {
       return
     }
 
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) {
+    // 注册
+    const { data, error: regError } = await supabase.auth.signUp({ email, password })
+    if (regError) {
       setError(
-        error.message === 'User already registered'
-          ? '该邮箱已注册，请直接登录'
-          : error.message
+        regError.message === 'User already registered'
+          ? '该账号已注册，请直接登录'
+          : regError.message
       )
       setLoading(false)
       return
     }
 
-    // 如果开启了邮箱确认，显示提示
-    setEmailSent(true)
-    // 没有开启邮箱确认的话直接跳转
-    router.push('/auth/bind')
-    router.refresh()
-  }
+    // 注册成功后自动创建情侣空间
+    if (data.user) {
+      try {
+        const res = await fetch('/api/couple/create', { method: 'POST' })
+        if (!res.ok) {
+          // 创建失败也跳首页，已有的会自动跳过
+        }
+      } catch {
+        // 忽略错误
+      }
+    }
 
-  if (emailSent) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="card p-8 w-full max-w-md animate-fade-in text-center">
-          <div className="text-5xl mb-4">📧</div>
-          <h1 className="text-2xl font-bold text-pink-love mb-4">验证邮箱</h1>
-          <p className="text-gray-600 mb-6">
-            已向 <strong>{email}</strong> 发送了验证邮件，
-            <br />
-            请查收并点击确认链接后登录。
-          </p>
-          <Link href="/auth/login" className="btn-primary inline-block">
-            前往登录
-          </Link>
-        </div>
-      </div>
-    )
+    router.push('/')
+    router.refresh()
   }
 
   return (
@@ -75,20 +65,20 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="text-5xl mb-4">💕</div>
           <h1 className="text-2xl font-bold text-pink-love">创建账号</h1>
-          <p className="text-gray-500 mt-2">加入你们的恋爱日记</p>
+          <p className="text-gray-500 mt-2">开始记录你们的恋爱点滴</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              邮箱
+              账号
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input-love"
-              placeholder="your@email.com"
+              placeholder="请输入邮箱作为账号"
               required
             />
           </div>

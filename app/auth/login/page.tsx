@@ -22,13 +22,22 @@ export default function LoginPage() {
     if (error) {
       setError(
         error.message === 'Invalid login credentials'
-          ? '邮箱或密码错误'
-          : error.message === 'Email not confirmed'
-            ? '请先验证邮箱'
-            : error.message
+          ? '账号或密码错误'
+          : error.message
       )
       setLoading(false)
       return
+    }
+
+    // 登录成功，检查是否有情侣空间，没有则自动创建
+    try {
+      const checkRes = await fetch('/api/couple/check')
+      const checkData = await checkRes.json()
+      if (!checkData.hasCouple) {
+        await fetch('/api/couple/create', { method: 'POST' })
+      }
+    } catch {
+      // 忽略
     }
 
     router.push('/')
@@ -47,14 +56,14 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              邮箱
+              账号
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input-love"
-              placeholder="your@email.com"
+              placeholder="请输入邮箱账号"
               required
             />
           </div>
