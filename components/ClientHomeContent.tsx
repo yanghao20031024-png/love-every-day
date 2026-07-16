@@ -6,7 +6,7 @@ import type { LoveData } from "@/hooks/useLoveData";
 
 const defaultData: LoveData = {
   couple: { person1: { name: "他", avatar: "" }, person2: { name: "她", avatar: "" }, startDate: "2024-01-01" },
-  timeline: [], photos: [], diary: [], countdowns: [], letters: [],
+  timeline: [], photos: [], diary: [], countdowns: [], letters: [], wishlist: [], coupons: [], dailyQuestions: [],
 };
 
 export default function ClientHomeContent({ initialData }: { initialData: LoveData | null }) {
