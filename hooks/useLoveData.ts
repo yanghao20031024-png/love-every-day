@@ -51,6 +51,37 @@ export interface Letter {
   isRead: boolean;
 }
 
+export interface WishlistItem {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  completed: boolean;
+  completedDate?: string;
+  createdBy: "person1" | "person2";
+}
+
+export interface LoveCoupon {
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  createdBy: "person1" | "person2";
+  redeemedBy?: "person1" | "person2";
+  redeemedDate?: string;
+  isRedeemed: boolean;
+}
+
+export interface DailyQuestion {
+  id: string;
+  date: string;
+  question: string;
+  answer1?: string;
+  answer2?: string;
+  answeredBy1: boolean;
+  answeredBy2: boolean;
+}
+
 export interface LoveData {
   couple: Couple;
   timeline: TimelineEvent[];
@@ -58,6 +89,9 @@ export interface LoveData {
   diary: DiaryEntry[];
   countdowns: Countdown[];
   letters: Letter[];
+  wishlist: WishlistItem[];
+  coupons: LoveCoupon[];
+  dailyQuestions: DailyQuestion[];
 }
 
 const defaultData: LoveData = {
@@ -71,6 +105,9 @@ const defaultData: LoveData = {
   diary: [],
   countdowns: [],
   letters: [],
+  wishlist: [],
+  coupons: [],
+  dailyQuestions: [],
 };
 
 export function useLoveData() {

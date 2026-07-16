@@ -10,8 +10,11 @@ const navItems = [
   { href: "/timeline", label: "时间轴", emoji: "📅" },
   { href: "/album", label: "相册", emoji: "📸" },
   { href: "/diary", label: "日记", emoji: "📝" },
-  { href: "/countdown", label: "纪念日", emoji: "🎂" },
+  { href: "/wishlist", label: "愿望", emoji: "🌟" },
+  { href: "/coupons", label: "爱情券", emoji: "🎫" },
+  { href: "/daily", label: "情话", emoji: "💬" },
   { href: "/letters", label: "情书", emoji: "💌" },
+  { href: "/countdown", label: "纪念日", emoji: "🎂" },
   { href: "/settings", label: "设置", emoji: "⚙️" },
 ];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLoveData } from "@/hooks/useLoveData";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function SettingsPage() {
   const { data, saveData, uploadImage } = useLoveData();
@@ -9,6 +9,11 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const fileRef1 = useRef<HTMLInputElement>(null);
   const fileRef2 = useRef<HTMLInputElement>(null);
+
+  // 修复：当 data 加载完成后同步 couple 状态
+  useEffect(() => {
+    setCouple(data.couple);
+  }, [data.couple]);
 
   const handleSave = async () => {
     await saveData({ ...data, couple });
@@ -21,10 +26,13 @@ export default function SettingsPage() {
     if (!file) return;
     const url = await uploadImage(file);
     if (url) {
-      setCouple((prev) => ({
-        ...prev,
-        [person]: { ...prev[person], avatar: url },
-      }));
+      const newCouple = {
+        ...couple,
+        [person]: { ...couple[person], avatar: url },
+      };
+      setCouple(newCouple);
+      // 修复：上传头像后自动保存
+      await saveData({ ...data, couple: newCouple });
     }
   };
 
