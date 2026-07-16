@@ -14,6 +14,9 @@ const defaultData: LoveData = {
     { id: '1', title: '一周年纪念日', date: '2025-01-01', emoji: '🎂' },
   ],
   letters: [],
+  wishlist: [],
+  coupons: [],
+  dailyQuestions: [],
 }
 
 export async function getServerData(coupleId: string): Promise<LoveData> {
