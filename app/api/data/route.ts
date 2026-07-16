@@ -21,6 +21,9 @@ const defaultData = {
     },
   ],
   letters: [],
+  wishlist: [],
+  coupons: [],
+  dailyQuestions: [],
 }
 
 export async function GET() {
@@ -86,19 +89,41 @@ export async function PUT(request: NextRequest) {
 
   const newData = await request.json()
 
-  const { error } = await supabase.from('love_data').upsert(
-    {
+  // 先检查是否已存在
+  const { data: existing } = await supabase
+    .from('love_data')
+    .select('id')
+    .eq('couple_id', member.couple_id)
+    .eq('id', 'main')
+    .single()
+
+  let error
+
+  if (existing) {
+    // 更新已有记录
+    const result = await supabase
+      .from('love_data')
+      .update({
+        data: newData,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('couple_id', member.couple_id)
+      .eq('id', 'main')
+    error = result.error
+  } else {
+    // 插入新记录
+    const result = await supabase.from('love_data').insert({
       id: 'main',
       couple_id: member.couple_id,
       data: newData,
       updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'id' }
-  )
+    })
+    error = result.error
+  }
 
   if (error) {
     console.error('Save data error:', error)
-    return NextResponse.json({ error: '保存失败' }, { status: 500 })
+    return NextResponse.json({ error: '保存失败: ' + error.message }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })
