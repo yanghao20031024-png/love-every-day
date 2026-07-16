@@ -41,16 +41,22 @@ export default function BindPage() {
     setError('')
     try {
       const res = await fetch('/api/couple/create', { method: 'POST' })
-      const data = await res.json()
+      const text = await res.text()
+      let data: Record<string, string> = {}
+      try {
+        data = JSON.parse(text)
+      } catch {
+        // 服务器返回了非 JSON（可能是错误页面）
+      }
       if (!res.ok) {
-        setError(data.error || '创建失败')
+        setError(data.error || `请求失败 (${res.status})`)
         setLoading(false)
         return
       }
       setInviteCode(data.invite_code)
       setPageState('created')
     } catch {
-      setError('网络错误，请重试')
+      setError('网络错误，请检查网络后重试')
     }
     setLoading(false)
   }
@@ -68,16 +74,22 @@ export default function BindPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ invite_code: inputCode }),
       })
-      const data = await res.json()
+      const text = await res.text()
+      let data: Record<string, string> = {}
+      try {
+        data = JSON.parse(text)
+      } catch {
+        // 服务器返回了非 JSON（可能是错误页面）
+      }
       if (!res.ok) {
-        setError(data.error || '加入失败')
+        setError(data.error || `请求失败 (${res.status})`)
         setLoading(false)
         return
       }
       router.push('/')
       router.refresh()
     } catch {
-      setError('网络错误，请重试')
+      setError('网络错误，请检查网络后重试')
     }
     setLoading(false)
   }
