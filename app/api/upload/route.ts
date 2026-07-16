@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
     // 上传到 Supabase Storage
-    const { error } = await supabase.storage.from('uploads').upload(filename, buffer, {
+    const { error } = await supabase.storage.from('yanghao').upload(filename, buffer, {
       contentType: file.type,
       upsert: false,
     })
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 获取公开 URL
-    const { data: urlData } = supabase.storage.from('uploads').getPublicUrl(filename)
+    const { data: urlData } = supabase.storage.from('yanghao').getPublicUrl(filename)
 
     return NextResponse.json({ url: urlData.publicUrl })
   } catch (error) {
