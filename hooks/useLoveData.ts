@@ -116,13 +116,16 @@ export function useLoveData() {
 
   const fetchData = useCallback(async () => {
     try {
+      console.log("Fetching data...");
       const res = await fetch("/api/data");
+      console.log("Fetch response:", res.status);
       if (res.status === 401) {
         window.location.href = "/auth/login";
         return;
       }
       if (res.ok) {
         const json = await res.json();
+        console.log("Fetched data:", json);
         setData(json);
       }
     } catch (error) {
@@ -138,11 +141,14 @@ export function useLoveData() {
 
   const saveData = async (newData: LoveData) => {
     try {
+      console.log("Saving data...");
       const res = await fetch("/api/data", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newData),
       });
+      const result = await res.json();
+      console.log("Save response:", res.status, result);
       if (res.status === 401) {
         window.location.href = "/auth/login";
         return false;
@@ -151,6 +157,7 @@ export function useLoveData() {
         setData(newData);
         return true;
       }
+      console.error("Save failed:", result);
     } catch (error) {
       console.error("Failed to save data:", error);
     }
