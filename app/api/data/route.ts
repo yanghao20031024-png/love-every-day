@@ -10,16 +10,7 @@ const defaultData = {
   timeline: [],
   photos: [],
   diary: [],
-  countdowns: [
-    {
-      id: '1',
-      title: '一周年纪念日',
-      date: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-        .toISOString()
-        .split('T')[0],
-      emoji: '🎂',
-    },
-  ],
+  countdowns: [],
   letters: [],
   wishlist: [],
   coupons: [],
@@ -27,104 +18,141 @@ const defaultData = {
 }
 
 export async function GET() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+    if (!user) {
+      return NextResponse.json({ error: '未登录' }, { status: 401 })
+    }
 
-  const { data: member } = await supabase
-    .from('couple_members')
-    .select('couple_id')
-    .eq('user_id', user.id)
-    .single()
+    // 直接用 user_id 查 couple_members
+    const { data: member, error: memberErr } = await supabase
+      .from('couple_members')
+      .select('couple_id')
+      .eq('user_id', user.id)
+      .limit(1)
 
-  if (!member) {
-    return NextResponse.json({ error: '未加入情侣空间' }, { status: 404 })
-  }
+    console.log('GET member lookup:', { user_id: user.id, member, memberErr })
 
-  const { data } = await supabase
-    .from('love_data')
-    .select('data')
-    .eq('couple_id', member.couple_id)
-    .eq('id', 'main')
-    .single()
+    if (memberErr || !member || member.length === 0) {
+      // 没有 couple，自动创建一个
+      const { data: couple, error: coupleErr } = await supabase
+        .from('couples')
+        .insert({ invite_code: Math.floor(100000 + Math.random() * 900000).toString() })
+        .select()
+        .single()
 
-  if (!data) {
-    // 懒初始化
-    await supabase.from('love_data').insert({
-      id: 'main',
-      couple_id: member.couple_id,
-      data: defaultData,
-      updated_at: new Date().toISOString(),
-    })
+      if (coupleErr) {
+        console.error('Create couple error:', coupleErr)
+        return NextResponse.json(defaultData)
+      }
+
+      await supabase.from('couple_members').insert({
+        couple_id: couple.id,
+        user_id: user.id,
+        role: 'admin',
+      })
+
+      await supabase.from('love_data').insert({
+        id: 'main',
+        couple_id: couple.id,
+        data: defaultData,
+        updated_at: new Date().toISOString(),
+      })
+
+      return NextResponse.json(defaultData)
+    }
+
+    const coupleId = member[0].couple_id
+
+    const { data: loveData, error: dataErr } = await supabase
+      .from('love_data')
+      .select('data')
+      .eq('couple_id', coupleId)
+      .eq('id', 'main')
+      .limit(1)
+
+    console.log('GET data lookup:', { coupleId, loveData, dataErr })
+
+    if (dataErr || !loveData || loveData.length === 0) {
+      await supabase.from('love_data').insert({
+        id: 'main',
+        couple_id: coupleId,
+        data: defaultData,
+        updated_at: new Date().toISOString(),
+      })
+      return NextResponse.json(defaultData)
+    }
+
+    return NextResponse.json(loveData[0].data)
+  } catch (error) {
+    console.error('GET error:', error)
     return NextResponse.json(defaultData)
   }
-
-  return NextResponse.json(data.data)
 }
 
 export async function PUT(request: NextRequest) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+    if (!user) {
+      return NextResponse.json({ error: '未登录' }, { status: 401 })
+    }
 
-  const { data: member } = await supabase
-    .from('couple_members')
-    .select('couple_id')
-    .eq('user_id', user.id)
-    .single()
+    const { data: member, error: memberErr } = await supabase
+      .from('couple_members')
+      .select('couple_id')
+      .eq('user_id', user.id)
+      .limit(1)
 
-  if (!member) {
-    return NextResponse.json({ error: '未加入情侣空间' }, { status: 404 })
-  }
+    console.log('PUT member lookup:', { user_id: user.id, member, memberErr })
 
-  const newData = await request.json()
+    if (memberErr || !member || member.length === 0) {
+      return NextResponse.json({ error: '未加入情侣空间' }, { status: 404 })
+    }
 
-  // 先检查是否已存在
-  const { data: existing } = await supabase
-    .from('love_data')
-    .select('id')
-    .eq('couple_id', member.couple_id)
-    .eq('id', 'main')
-    .single()
+    const coupleId = member[0].couple_id
+    const newData = await request.json()
 
-  let error
-
-  if (existing) {
-    // 更新已有记录
-    const result = await supabase
+    // 直接用 update，不用 upsert
+    const { error: updateErr, count } = await supabase
       .from('love_data')
       .update({
         data: newData,
         updated_at: new Date().toISOString(),
       })
-      .eq('couple_id', member.couple_id)
+      .eq('couple_id', coupleId)
       .eq('id', 'main')
-    error = result.error
-  } else {
-    // 插入新记录
-    const result = await supabase.from('love_data').insert({
-      id: 'main',
-      couple_id: member.couple_id,
-      data: newData,
-      updated_at: new Date().toISOString(),
-    })
-    error = result.error
-  }
 
-  if (error) {
-    console.error('Save data error:', error)
-    return NextResponse.json({ error: '保存失败: ' + error.message }, { status: 500 })
-  }
+    console.log('PUT update result:', { updateErr, count })
 
-  return NextResponse.json({ success: true })
+    if (updateErr) {
+      console.error('Update error:', updateErr)
+      return NextResponse.json({ error: '保存失败: ' + updateErr.message }, { status: 500 })
+    }
+
+    // 如果 update 没有匹配到行，尝试 insert
+    if (count === 0) {
+      const { error: insertErr } = await supabase.from('love_data').insert({
+        id: 'main',
+        couple_id: coupleId,
+        data: newData,
+        updated_at: new Date().toISOString(),
+      })
+
+      console.log('PUT insert result:', { insertErr })
+
+      if (insertErr) {
+        console.error('Insert error:', insertErr)
+        return NextResponse.json({ error: '保存失败: ' + insertErr.message }, { status: 500 })
+      }
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('PUT error:', error)
+    return NextResponse.json({ error: '服务器错误' }, { status: 500 })
+  }
 }
