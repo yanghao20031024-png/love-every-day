@@ -29,17 +29,7 @@ export default function LoginPage() {
       return
     }
 
-    // 登录成功，检查是否有情侣空间，没有则自动创建
-    try {
-      const checkRes = await fetch('/api/couple/check')
-      const checkData = await checkRes.json()
-      if (!checkData.hasCouple) {
-        await fetch('/api/couple/create', { method: 'POST' })
-      }
-    } catch {
-      // 忽略
-    }
-
+    // 登录成功 → 跳转到首页（middleware 会自动检查是否有情侣）
     router.push('/')
     router.refresh()
   }

@@ -28,8 +28,8 @@ export default function BindPage() {
         .from('couple_members')
         .select('id')
         .eq('user_id', user.id)
-        .single()
-      if (member) {
+        .limit(1)
+      if (member && member.length > 0) {
         router.push('/')
       }
     }
@@ -43,13 +43,10 @@ export default function BindPage() {
       const res = await fetch('/api/couple/create', { method: 'POST' })
       const text = await res.text()
       let data: Record<string, string> = {}
-      try {
-        data = JSON.parse(text)
-      } catch {
-        // 服务器返回了非 JSON（可能是错误页面）
-      }
+      try { data = JSON.parse(text) } catch {}
+
       if (!res.ok) {
-        setError(data.error || `请求失败 (${res.status})`)
+        setError(data.error || `创建失败 (${res.status})`)
         setLoading(false)
         return
       }
@@ -76,13 +73,10 @@ export default function BindPage() {
       })
       const text = await res.text()
       let data: Record<string, string> = {}
-      try {
-        data = JSON.parse(text)
-      } catch {
-        // 服务器返回了非 JSON（可能是错误页面）
-      }
+      try { data = JSON.parse(text) } catch {}
+
       if (!res.ok) {
-        setError(data.error || `请求失败 (${res.status})`)
+        setError(data.error || `加入失败 (${res.status})`)
         setLoading(false)
         return
       }
@@ -100,7 +94,6 @@ export default function BindPage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // fallback
       const input = document.createElement('input')
       input.value = inviteCode
       document.body.appendChild(input)
@@ -110,11 +103,6 @@ export default function BindPage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
-  }
-
-  const goToHome = () => {
-    router.push('/')
-    router.refresh()
   }
 
   // 创建成功 → 显示邀请码
@@ -133,22 +121,24 @@ export default function BindPage() {
             <div className="text-5xl font-bold text-pink-love tracking-[0.2em] mb-4 select-all">
               {inviteCode}
             </div>
-            <button
-              onClick={handleCopy}
-              className="btn-primary text-sm px-6"
-            >
+            <button onClick={handleCopy} className="btn-primary text-sm px-6">
               {copied ? '✅ 已复制' : '📋 复制邀请码'}
             </button>
           </div>
 
-          <button onClick={goToHome} className="text-pink-love font-medium hover:underline">
-            我已记住，进入首页 →
+          <p className="text-sm text-gray-400 mb-4">
+            把这个码发给 TA，TA注册后输入即可加入
+          </p>
+
+          <button onClick={() => router.push('/')} className="text-pink-love font-medium hover:underline">
+            进入首页 →
           </button>
         </div>
       </div>
     )
   }
 
+  // 选择页面
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="card p-8 w-full max-w-md animate-fade-in">
@@ -188,13 +178,9 @@ export default function BindPage() {
 
         {pageState === 'creating' && (
           <div className="text-center space-y-4">
-            <p className="text-gray-600">
-              点击下方按钮，系统将为你生成一个6位邀请码
-            </p>
+            <p className="text-gray-600">点击下方按钮，系统将为你生成一个6位邀请码</p>
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm">
-                {error}
-              </div>
+              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm">{error}</div>
             )}
             <button
               onClick={handleCreate}
@@ -214,9 +200,7 @@ export default function BindPage() {
 
         {pageState === 'joining' && (
           <div className="space-y-4">
-            <p className="text-gray-600 text-center">
-              请输入 TA 的6位邀请码
-            </p>
+            <p className="text-gray-600 text-center">请输入 TA 的6位邀请码</p>
             <input
               type="text"
               value={inputCode}
@@ -230,9 +214,7 @@ export default function BindPage() {
               autoFocus
             />
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm">
-                {error}
-              </div>
+              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm">{error}</div>
             )}
             <button
               onClick={handleJoin}

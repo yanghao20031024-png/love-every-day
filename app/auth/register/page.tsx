@@ -32,7 +32,7 @@ export default function RegisterPage() {
     }
 
     // 注册
-    const { data, error: regError } = await supabase.auth.signUp({ email, password })
+    const { error: regError } = await supabase.auth.signUp({ email, password })
     if (regError) {
       setError(
         regError.message === 'User already registered'
@@ -43,19 +43,8 @@ export default function RegisterPage() {
       return
     }
 
-    // 注册成功后自动创建情侣空间
-    if (data.user) {
-      try {
-        const res = await fetch('/api/couple/create', { method: 'POST' })
-        if (!res.ok) {
-          // 创建失败也跳首页，已有的会自动跳过
-        }
-      } catch {
-        // 忽略错误
-      }
-    }
-
-    router.push('/')
+    // 注册成功 → 跳转到绑定页
+    router.push('/auth/bind')
     router.refresh()
   }
 
